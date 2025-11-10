@@ -14,6 +14,16 @@ The solution is then a combination of teams and days that adhere to the above co
 
 ## Getting started
 
+> [!NOTE]
+> This will need a valid Gemini API way to work. 
+> Please create a `.env.local` file with one line:
+> `GEMINI_API_KEY=YOUR_API_KEY`
+> Where you replace `YOUR_API_KEY` with your actual API key.
+> Google offers free tier API keys that is ggod enough so it will work in this context.
+> A paid subscription will get the answer faster and with much less risk of the server being
+> overloaded.
+
+
 This is implemented as a React application using Node.js.  To get started on a local do the following:
 
 `$ npm install`

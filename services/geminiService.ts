@@ -90,7 +90,7 @@ ${teamDetails}
 Your task is to assign exactly ${daysInOffice} weekdays (Monday-Friday) to each team, subject to the following rules:
 1. All members of a single team must be in the office on the same days.
 2. The total number of people (sum of team sizes) in the office on any given day cannot exceed the available seats (N).
-3. The primary optimization goal is to MINIMIZE the number of teams assigned to their "Least Favorable Day". A team is penalized if one of its assigned office days is its least favorable day. The total count of such teams is the solution's "score". A lower score is better.
+3. The primary optimization goal is to MINIMIZE the number of people assigned to their "Least Favorable Day". A team is penalized if one of its assigned office days is its least favorable day. The total count of number of people in teams assigned to their least favorable days is the solution's "score". A lower score is better.
 
 Simulate a search for the best solutions using a method analogous to dynamic programming with backtracking. Explore the solution space up to the specified search depth (M) to find the globally optimal solutions.
 
