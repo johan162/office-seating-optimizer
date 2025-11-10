@@ -1,0 +1,5 @@
+{
+  "name": "Office Seating Optimizer",
+  "description": "An intelligent web application that solves office space allocation problems by assigning teams to specific weekdays. It uses Gemini AI to find the optimal schedule based on constraints like available seats, required office days, and team preferences, minimizing scheduling conflicts.",
+  "requestFramePermissions": []
+}
