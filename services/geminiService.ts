@@ -58,18 +58,18 @@ export const solveOptimizationProblem = async (
     maxDepth: number,
     numSolutions: number
 ): Promise<Solution[]> => {
-    if (!process.env.API_KEY) {
-        throw new Error("API_KEY environment variable not set");
-    }
+    // if (!import.meta.env.VITE_API_KEY) {
+    //     throw new Error("API_KEY environment variable not set");
+    // }
 
     console.log("Calling Gemini API with the following parameters:");
     console.log(`- Seats: ${seats}`);
     console.log(`- Days in Office: ${daysInOffice}`);
     console.log(`- Max Depth: ${maxDepth}`);
     console.log(`- Number of Solutions: ${numSolutions}`);
-    console.log(" - API Key: " + process.env.API_KEY?.substring(0, 4) + "****");
+    console.log(" - API Key: " + import.meta.env.VITE_API_KEY?.substring(0, 5) + "****");
     
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_API_KEY });
 
     const teamDetails = teams.map(t => 
         `- Team: "${t.name}", Size: ${t.size}, Least Favorable Day: ${t.leastFavorableDay || 'None'}`
