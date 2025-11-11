@@ -4,6 +4,10 @@
 FROM node:25.1-alpine AS builder
 WORKDIR /app
 
+# Add version argument (can be passed during build)
+ARG VERSION=dev
+ENV VERSION=$VERSION
+
 # Copy package files and install dependencies
 COPY package.json package-lock.json ./
 RUN npm install
@@ -21,6 +25,12 @@ RUN npm run build
 # ---------------------------------------------------
 # Stage 2: Serve the application with Nginx
 FROM nginx:1.29-alpine
+
+# Add version label to the image
+ARG VERSION=dev
+LABEL version="$VERSION"
+LABEL maintainer="Johan Persson"
+LABEL description="Office Space Optimizer - Intelligent scheduling powered by Gemini AI"
 
 # Copy the built static files from the builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html

@@ -1,3 +1,5 @@
+VERSION ?= dev
+
 build:
 	npm run build
 
@@ -8,10 +10,10 @@ preview:
 	npm run preview
 
 cnc-build:
-	podman build --no-cache -t office-space-optimizer .
+	podman build --no-cache --build-arg VERSION=$(VERSION) -t office-seating-optimizer:$(VERSION) .
 
 c-build:
-	podman build -t office-space-optimizer .
+	podman build --build-arg VERSION=$(VERSION) -t office-seating-optimizer:$(VERSION) .
 
 c-run:
 	@if [ -z "$(API_KEY)" ]; then \
@@ -23,7 +25,7 @@ c-run:
 	-@podman stop office-optimizer > /dev/null 2>&1
 	-@podman rm office-optimizer > /dev/null 2>&1
 	@echo "Starting new container..."
-	@podman run -d -p 8080:80 -e VITE_API_KEY=$(API_KEY) --name office-optimizer office-space-optimizer
+	@podman run -d -p 8080:80 -e VITE_API_KEY=$(API_KEY) --name office-optimizer office-seating-optimizer:$(VERSION)
 	@echo "Application is running at http://localhost:8080"
 	@echo "To stop the container, run: podman stop office-optimizer"
 	@echo "To see logs, run: podman logs -f office-optimizer"
@@ -40,7 +42,7 @@ c-rm:
 
 c-rmi:
 	@echo "Removing image..."
-	-@podman rmi office-space-optimizer > /dev/null 2>&1
+	-@podman rmi office-seating-optimizer:$(VERSION) > /dev/null 2>&1
 	@echo "Image removed."
 
 c-all-rmi:
