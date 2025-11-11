@@ -58,18 +58,20 @@ export const solveOptimizationProblem = async (
     maxDepth: number,
     numSolutions: number
 ): Promise<Solution[]> => {
-    // if (!import.meta.env.VITE_API_KEY) {
-    //     throw new Error("API_KEY environment variable not set");
-    // }
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    
+    if (!apiKey) {
+        throw new Error("API Key not found. Please set VITE_GEMINI_API_KEY environment variable.");
+    }
 
     console.log("Calling Gemini API with the following parameters:");
     console.log(`- Seats: ${seats}`);
     console.log(`- Days in Office: ${daysInOffice}`);
     console.log(`- Max Depth: ${maxDepth}`);
     console.log(`- Number of Solutions: ${numSolutions}`);
-    console.log(" - API Key: " + import.meta.env.VITE_GEMINI_API_KEY?.substring(0, 5) + "****");
+    console.log(" - API Key: " + apiKey?.substring(0, 5) + "****");
     
-    const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
+    const ai = new GoogleGenAI({ apiKey });
 
     const teamDetails = teams.map(t => 
         `- Team: "${t.name}", Size: ${t.size}, Least Favorable Day: ${t.leastFavorableDay || 'None'}`
@@ -107,6 +109,10 @@ Provide your answer in the specified JSON format.
                 responseSchema: solutionSchema,
             },
         });
+        
+        if (!response.text) {
+            throw new Error("Empty response from Gemini API");
+        }
         
         const jsonText = response.text.trim();
         const result = JSON.parse(jsonText);

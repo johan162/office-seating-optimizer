@@ -43,7 +43,13 @@ c-rmi:
 	-@podman rmi office-space-optimizer > /dev/null 2>&1
 	@echo "Image removed."
 
+c-all-rmi:
+	@echo "Removing all images..."
+	-@podman images -q | xargs podman rmi -f > /dev/null 2>&1
+	@echo "All images removed."
+
 c-clean: c-stop c-rm c-rmi
 
+c-really-clean: c-stop c-rm c-rmi c-all-rmi
 
-.PHONY: build dev preview c-build c-run c-stop c-rm c-rmi
+.PHONY: build dev preview c-build c-run c-stop c-rm c-rmi c-all-rmi c-clean c-really-clean

@@ -2,7 +2,7 @@
 set -e
 
 # Find the main JavaScript file in the assets directory
-JS_FILE=$(find /usr/share/nginx/html/assets -name "index-*.js")
+JS_FILE=$(find /usr/share/nginx/html/assets -name "main-*.js" -o -name "index-*.js" | head -n 1)
 
 # Check if VITE_API_KEY is set
 if [ -z "$VITE_API_KEY" ]; then
