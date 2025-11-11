@@ -80,10 +80,6 @@ for arg in "$@"; do
         PUSH_AFTER_BUILD=true
         shift
         ;;
-    --deploy | -d)
-        DEPLOY_AFTER_BUILD=true
-        shift
-        ;;
     -*)
         log_error "Unknown option: $arg"
         echo "Usage: $0 <version> [major|minor|patch] [--help]"
@@ -137,6 +133,7 @@ if [[ "$ORIGINAL_BRANCH" != "develop" ]] && [[ "$ORIGINAL_BRANCH" != "main" ]] &
     fi      
 fi
 
+# Warn for uncommitted changes or untracked files
 if ! git diff-index --quiet HEAD -- || [[ -n $(git status --porcelain) ]]; then
     log_warn "You have uncommitted changes or untracked files in your working directory."
     git status --short
@@ -148,37 +145,6 @@ if ! git diff-index --quiet HEAD -- || [[ -n $(git status --porcelain) ]]; then
     # fi
 fi
 
-# Check if gh-pages branch exists if a deploy have been requested
-if [ "${DEPLOY_AFTER_BUILD}" = true ]; then
-    log_info "Deployment requested, checking for gh-pages branch..."
-
-    if ! git show-ref --verify --quiet refs/heads/gh-pages; then
-        log_error "gh-pages branch does not exist"
-        read -p "Fetch from origin and continue? (y/n) " -n 1 -r
-        echo
-        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-            log_error "Aborted by user"
-            exit 1
-        fi
-        if git fetch origin gh-pages; then
-            log_info "Fetched gh-pages branch from origin"
-        else
-            log_error "Failed to fetch gh-pages branch from origin"
-            exit 1
-        fi
-        if git checkout -b gh-pages origin/gh-pages; then
-            log_info "Checked out new branch 'gh-pages' from origin"
-        else
-            log_error "Failed to create 'gh-pages' branch"
-            exit 1
-        fi
-        git branch -vv
-        # Switch back to original branch
-        git checkout "$ORIGINAL_BRANCH"
-    fi
-else
-    log_info "No deployment requested, skipping gh-pages branch check."
-fi
 
 # =====================================
 # Step 2: Build Project, check types, run tests
@@ -194,75 +160,11 @@ if ! npx tsc --noEmit --strict >/dev/null 2>&1; then
 fi
 log_info "Type check passed!"
 
-# --------------------------------------
-# Step 2.2: Check test coverage meets minimum threshold
-# --------------------------------------
-# log_step 2.2 "Checking test coverage..."
-
-# COVERAGE_THRESHOLD=75
-# log_info "Required coverage threshold: ${COVERAGE_THRESHOLD}%"
-
-# # Run tests with coverage and capture output
-# COVERAGE_OUTPUT=$(npm run test:coverage 2>&1)
-
-# # Extract coverage percentages from the output
-# # Looking for the "All files" line which contains overall coverage
-# COVERAGE_LINE=$(echo "$COVERAGE_OUTPUT" | grep "All files" | head -1)
-
-# if [ -z "$COVERAGE_LINE" ]; then
-#     log_error "Could not extract coverage information from test output"
-#     log_error "Please ensure 'npm run test:coverage' produces coverage report"
-#     exit 1
-# fi
-
-# # Extract the percentage values (Statements, Branch, Functions, Lines)
-# # Format: "All files     |   92.7 |    84.05 |     100 |   93.72 |"
-# STMT_COV=$(echo "$COVERAGE_LINE" | awk '{print $4}' | cut -d'|' -f1 | xargs)
-# BRANCH_COV=$(echo "$COVERAGE_LINE" | awk '{print $6}' | cut -d'|' -f1 | xargs)
-# FUNC_COV=$(echo "$COVERAGE_LINE" | awk '{print $8}' | cut -d'|' -f1 | xargs)
-# LINE_COV=$(echo "$COVERAGE_LINE" | awk '{print $10}' | cut -d'|' -f1 | xargs)
-
-# log_info "Coverage Report:"
-# log_info "  Statements: ${STMT_COV}%"
-# log_info "  Branches:   ${BRANCH_COV}%"
-# log_info "  Functions:  ${FUNC_COV}%"
-# log_info "  Lines:      ${LINE_COV}%"
-
-# # Check if any metric is below threshold
-# COVERAGE_FAILED=0
-
-# if (($(echo "$STMT_COV < $COVERAGE_THRESHOLD" | bc -l))); then
-#     log_error "Statement coverage (${STMT_COV}%) is below threshold (${COVERAGE_THRESHOLD}%)"
-#     COVERAGE_FAILED=1
-# fi
-
-# if (($(echo "$BRANCH_COV < $COVERAGE_THRESHOLD" | bc -l))); then
-#     log_error "Branch coverage (${BRANCH_COV}%) is below threshold (${COVERAGE_THRESHOLD}%)"
-#     COVERAGE_FAILED=1
-# fi
-
-# if (($(echo "$FUNC_COV < $COVERAGE_THRESHOLD" | bc -l))); then
-#     log_error "Function coverage (${FUNC_COV}%) is below threshold (${COVERAGE_THRESHOLD}%)"
-#     COVERAGE_FAILED=1
-# fi
-
-# if (($(echo "$LINE_COV < $COVERAGE_THRESHOLD" | bc -l))); then
-#     log_error "Line coverage (${LINE_COV}%) is below threshold (${COVERAGE_THRESHOLD}%)"
-#     COVERAGE_FAILED=1
-# fi
-
-# if [ $COVERAGE_FAILED -eq 1 ]; then
-#     log_error "Test coverage is below minimum threshold of ${COVERAGE_THRESHOLD}%"
-#     log_error "Please add more tests to increase coverage before creating a release"
-#     exit 1
-# fi
-
-# log_info "✓ Test coverage meets minimum threshold (${COVERAGE_THRESHOLD}%)"
 
 # --------------------------------------
-# Step 2.3: Build Project
+# Step 2.2: Build Project
 # --------------------------------------
-log_step 2.3 "Building project..."
+log_step 2.2 "Building project..."
 
 # Clean previous build
 log_info "Cleaning previous build..."
@@ -288,71 +190,23 @@ fi
 
 log_info "Build successful!"
 
-# =====================================
-# Step 3: Deploy to gh-pages
-# =====================================
-log_step 3 "Checking if we should deploy to gh-pages branch."
-
-if [ "${DEPLOY_AFTER_BUILD}" != true ]; then
-    log_info "Skipping deployment to gh-pages branch (not requested)"
-else
-    log_info "Deploying to gh-pages branch..."
-
-    # Switch to gh-pages branch
-    log_info "Switching to gh-pages branch..."
-    if ! git checkout gh-pages; then
-        log_error "Failed to checkout gh-pages branch"
-        exit 1
-    fi
-
-    # Remove old files (keep .git & .gitignore in directory)
-    log_info "Removing old deployment files from gh-pages..."
-    git rm -rf assets *.svg *.html *.json manifest.* *.js *.log >/dev/null 2>&1 || true
-
-    # Copy new build files
-    log_info "Copying new build files..."
-    cp -r dist/* .
-
-    # Create .nojekyll file (important for GitHub Pages)
-    touch .nojekyll
-
-    # Add all files
-    log_info "Adding files to git..."
-    git add .
-
-    # Check if there are changes to commit
-    if git diff --cached --quiet; then
-        log_warn "No changes to deploy. Exiting."
-        git checkout "$ORIGINAL_BRANCH"
-        exit 0
-    fi
-
-    # Commit changes
-    BUILD_DATE=$(date '+%Y-%m-%d %H:%M:%S')
-    log_info "Committing changes..."
-    git commit -m "Deploy build - $BUILD_DATE"
-
-    log_info "Deployment committed successfully!"
-
-    # Push to gh-pages branch
-    if [ "$PUSH_AFTER_BUILD" = true ]; then
-        log_info "Pushing to remote gh-pages branch..."
-        if git push origin gh-pages; then
-            log_info "Pushed to remote gh-pages branch successfully!"
-        else
-            log_error "Failed to push to remote gh-pages branch. You may need to push manually: git push origin gh-pages"
-            exit 1
-        fi
-    else
-        log_info "Skipping push to remote gh-pages branch (not requested)"
-    fi
+# --------------------------------------
+# Build Container Image
+# --------------------------------------
+log_step 2.3 "Building container image..."
+if ! make c-build >/dev/null 2>&1; then
+    log_error "Container image build failed. Run 'make c-build' manually to see errors."
+    exit 1
 fi
+log_info "Container image built successfully!"
+
+
 
 # =====================================
-# Step 4: Cleanup and Return
+# Step 3: Cleanup and Return
 # =====================================
 
-log_step 4 "Cleaning up..."
+log_step 3 "Cleaning up..."
 
 if [ "$(git branch --show-current)" != "$ORIGINAL_BRANCH" ]; then
     # Switch back to original branch
