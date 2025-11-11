@@ -7,6 +7,9 @@ dev:
 preview:
 	npm run preview
 
+cnc-build:
+	podman build --no-cache -t office-space-optimizer .
+
 c-build:
 	podman build -t office-space-optimizer .
 
