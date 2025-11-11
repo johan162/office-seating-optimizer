@@ -7,10 +7,10 @@ dev:
 preview:
 	npm run preview
 
-container-build:
+c-build:
 	podman build -t office-space-optimizer .
 
-container-run:
+c-run:
 	@if [ -z "$(API_KEY)" ]; then \
 		echo "Error: API_KEY environment variable is not set."; \
 		echo "Usage: API_KEY=<your_gemini_api_key> make container-run"; \
@@ -25,22 +25,22 @@ container-run:
 	@echo "To stop the container, run: podman stop office-optimizer"
 	@echo "To see logs, run: podman logs -f office-optimizer"
 
-container-stop:
+c-stop:
 	@echo "Stopping container..."
 	-@podman stop office-optimizer > /dev/null 2>&1
 	@echo "Container stopped."
 
-container-rm:
+c-rm:
 	@echo "Removing container..."
 	-@podman rm office-optimizer > /dev/null 2>&1
 	@echo "Container removed."
 
-container-rmi:
+c-rmi:
 	@echo "Removing image..."
 	-@podman rmi office-space-optimizer > /dev/null 2>&1
 	@echo "Image removed."
 
-c-clean: container-stop container-rm container-rmi
+c-clean: c-stop c-rm c-rmi
 
 
-.PHONY: build dev preview container-build container-run container-stop container-rm container-rmi
+.PHONY: build dev preview c-build c-run c-stop c-rm c-rmi
