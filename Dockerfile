@@ -1,3 +1,4 @@
+# ---------------------------------------------------
 # Stage 1: Build the React application
 FROM node:20-alpine AS builder
 
@@ -17,11 +18,15 @@ ENV VITE_API_KEY=$VITE_API_KEY
 # Build the application
 RUN npm run build
 
+# ---------------------------------------------------
 # Stage 2: Serve the application with Nginx
 FROM nginx:1.25-alpine
 
 # Copy the built static files from the builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Set proper ownership and permissions for nginx
+RUN chown -R nginx:nginx /usr/share/nginx/html && chmod -R a+r /usr/share/nginx/html
 
 # Copy the Nginx configuration file
 COPY nginx.conf /etc/nginx/conf.d/default.conf

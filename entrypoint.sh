@@ -21,5 +21,9 @@ sed "s|import\.meta\.env\.VITE_API_KEY|'${VITE_API_KEY}'|g" "$JS_FILE" > "$TMP_F
 # Overwrite the original file with the updated content
 mv "$TMP_FILE" "$JS_FILE"
 
+# Ensure the file has correct ownership and permissions for nginx
+chown nginx:nginx "$JS_FILE"
+chmod a+r "$JS_FILE"
+
 # Execute the CMD from the Dockerfile (e.g., "nginx -g 'daemon off;'")
 exec "$@"

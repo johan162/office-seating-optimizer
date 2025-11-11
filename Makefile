@@ -24,3 +24,23 @@ container-run:
 	@echo "Application is running at http://localhost:8080"
 	@echo "To stop the container, run: podman stop office-optimizer"
 	@echo "To see logs, run: podman logs -f office-optimizer"
+
+container-stop:
+	@echo "Stopping container..."
+	-@podman stop office-optimizer > /dev/null 2>&1
+	@echo "Container stopped."
+
+container-rm:
+	@echo "Removing container..."
+	-@podman rm office-optimizer > /dev/null 2>&1
+	@echo "Container removed."
+
+container-rmi:
+	@echo "Removing image..."
+	-@podman rmi office-space-optimizer > /dev/null 2>&1
+	@echo "Image removed."
+
+c-clean: container-stop container-rm container-rmi
+
+
+.PHONY: build dev preview container-build container-run container-stop container-rm container-rmi
