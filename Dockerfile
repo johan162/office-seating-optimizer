@@ -1,7 +1,7 @@
 # ---------------------------------------------------
 # Stage 1: Build the React application
-FROM node:20-alpine AS builder
-
+# FROM node:20.19.5-alpine AS builder
+FROM node:25.1-alpine AS builder
 WORKDIR /app
 
 # Copy package files and install dependencies
@@ -20,7 +20,7 @@ RUN npm run build
 
 # ---------------------------------------------------
 # Stage 2: Serve the application with Nginx
-FROM nginx:1.25-alpine
+FROM nginx:1.29-alpine
 
 # Copy the built static files from the builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
