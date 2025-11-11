@@ -1,5 +1,8 @@
 # Seating AI Optimization
 
+![Version](https://img.shields.io/badge/version-0.0.1-brightgreen.svg)
+
+
 ## Introduction
 
 This solves the following organization seating optimization problem using Google Gemini AI:
