@@ -30,7 +30,7 @@ FROM nginx:1.29-alpine
 ARG VERSION=dev
 LABEL version="$VERSION"
 LABEL maintainer="Johan Persson"
-LABEL description="Office Space Optimizer - Intelligent scheduling powered by Gemini AI"
+LABEL description="Office Seating Optimizer - Intelligent scheduling powered by Gemini AI"
 
 # Copy the built static files from the builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
