@@ -9,6 +9,13 @@ dev:
 preview:
 	npm run preview
 
+clean: c-clean
+	rm -rf dist
+
+really-clean: clean c-really-clean
+	rm -rf node_modules
+
+
 cnc-build:
 	podman build --no-cache --build-arg VERSION=$(VERSION) -t office-seating-optimizer:$(VERSION) .
 
