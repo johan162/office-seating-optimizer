@@ -14,9 +14,9 @@ fi
 TMP_FILE=$(mktemp)
 
 # Replace the placeholder with the actual API key
-# The placeholder is a Vite-specific syntax: import.meta.env.VITE_API_KEY
+# The placeholder is a Vite-specific syntax: import.meta.env.VITE_GEMINI_API_KEY
 # We are replacing it with the actual key provided at runtime.
-sed "s|import\.meta\.env\.VITE_API_KEY|'${VITE_API_KEY}'|g" "$JS_FILE" > "$TMP_FILE"
+sed "s|import\.meta\.env\.VITE_GEMINI_API_KEY|'${VITE_API_KEY}'|g" "$JS_FILE" > "$TMP_FILE"
 
 # Overwrite the original file with the updated content
 mv "$TMP_FILE" "$JS_FILE"
