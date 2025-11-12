@@ -54,7 +54,7 @@ help: ## Show this help message
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(GREEN)%-18s$(NC) %s\n", $$1, $$2}'
 	@echo ""
 	@echo "$(YELLOW)Examples:$(NC)"
-	@echo "  make dev 						          # Run development server"
+	@echo "  make dev                                 # Run development server"
 	@echo "  make VERSION=0.5.1 c-build               # Build container and tag with version 0.5.1"
 	@echo "  make c-run                               # Run the latest containerized application"
 	@echo "  make c-really-clean                      # Stop and clean all container artifacts"
