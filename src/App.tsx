@@ -8,7 +8,7 @@ import { solveOptimizationProblem } from './services/geminiService';
 // FIX: Import `LoadingSpinner` component from `components/icons`.
 import { LoadingSpinner } from './components/icons';
 
-const version = '0.0.2';
+const version = '0.0.3';
 
 const App: React.FC = () => {
     const [people, setPeople] = useState<Person[]>([]);

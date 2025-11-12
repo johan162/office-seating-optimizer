@@ -1,6 +1,6 @@
 # Seating AI Optimization
 
-![Version](https://img.shields.io/badge/version-0.0.2-brightgreen.svg)
+![Version](https://img.shields.io/badge/version-0.0.3-brightgreen.svg)
 
 
 # 1. Introduction

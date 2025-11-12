@@ -1,3 +1,14 @@
+## [0.0.3] - 2025-11-12
+
+Release type: patch
+
+### 📋 Summary 
+- Fix CI/CD Tagging in release script
+
+### 🛠 Internal
+- [bug] Fix double tagging of images that lead to image not found
+
+
 ## [0.0.2] - 2025-11-12
 
 Release type: major

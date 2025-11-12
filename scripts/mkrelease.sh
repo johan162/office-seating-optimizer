@@ -497,8 +497,8 @@ else
 fi
 
 # Verify that the container was built locally by calling Ppodman
-if ! podman image exists "${CONTAINER_NAME}:v${VERSION}"; then
-    log_error "Container image ${CONTAINER_NAME}:v${VERSION} not found locally after build"
+if ! podman image exists "${CONTAINER_NAME}"; then
+    log_error "Container image ${CONTAINER_NAME} not found locally after build"
     exit 1
 else
     log_info "✓ Verified container image exists locally"
@@ -506,19 +506,11 @@ fi
 
 make VERSION="$VERSION" c-push >>"$RELEASE_LOGFILE" 2>&1
 if [ $? -ne 0 ]; then
-    log_error "Failed to push container image to GitHub Container Registry: ${CONTAINER_IMAGE   }"
+    log_error "Failed to push container image to GitHub Container Registry: ${CONTAINER_IMAGE}"
     exit 1
 else
     log_info "✓ Pushed container image to GitHub Container Registry: ${CONTAINER_IMAGE}"
 fi
-
-# Push the container image to GitHub Container Registry
-# if podman push "${CONTAINER_IMAGE}" >>"$RELEASE_LOGFILE" 2>&1; then
-#     log_info "✓ Pushed container image to GitHub Container Registry: ${CONTAINER_IMAGE}"
-# else
-#     log_error "Failed to push container image to GitHub Container Registry: ${CONTAINER_IMAGE}"
-#     exit 1
-# fi
 
 # ===============================================================
 # Step 10: Switch back to develop branch and merge back main
