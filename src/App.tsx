@@ -8,6 +8,8 @@ import { solveOptimizationProblem } from './services/geminiService';
 // FIX: Import `LoadingSpinner` component from `components/icons`.
 import { LoadingSpinner } from './components/icons';
 
+const version = '0.0.2';
+
 const App: React.FC = () => {
     const [people, setPeople] = useState<Person[]>([]);
     const [teams, setTeams] = useState<Team[]>([]);
@@ -106,6 +108,7 @@ const App: React.FC = () => {
                 <header className="text-center mb-8">
                     <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight">Office Seating Optimizer</h1>
                     <p className="mt-2 text-lg text-indigo-300">Intelligent scheduling powered by Gemini AI</p>
+                    <p className="mt-1 text-sm text-gray-600 italic">v{version} © 2025 Johan Persson</p>
                 </header>
                 
                 <main>

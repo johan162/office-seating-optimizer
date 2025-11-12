@@ -4,20 +4,28 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, process.cwd(), '');
-    // console.log('Environment variables loaded:', { GEMINI_API_KEY: env.GEMINI_API_KEY });
     return {
       server: {
         port: 3000,
         host: '0.0.0.0',
       },
       plugins: [react()],
-      define: {
-        'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-        'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)
+      build: {
+        rollupOptions: {
+          input: {
+            main: 'index.html'
+          },
+          output: {
+            entryFileNames: 'assets/[name]-[hash].js',
+            chunkFileNames: 'assets/[name]-[hash].js',
+            assetFileNames: 'assets/[name]-[hash].[ext]'
+          }
+        },
+        outDir: 'dist'
       },
       resolve: {
         alias: {
-          '@': path.resolve(__dirname, '.'),
+          '@': path.resolve(__dirname, 'src'),
         }
       }
     };

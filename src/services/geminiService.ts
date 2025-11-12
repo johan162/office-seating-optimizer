@@ -58,8 +58,10 @@ export const solveOptimizationProblem = async (
     maxDepth: number,
     numSolutions: number
 ): Promise<Solution[]> => {
-    if (!process.env.API_KEY) {
-        throw new Error("API_KEY environment variable not set");
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    
+    if (!apiKey) {
+        throw new Error("API Key not found. Please set VITE_GEMINI_API_KEY environment variable.");
     }
 
     console.log("Calling Gemini API with the following parameters:");
@@ -67,9 +69,9 @@ export const solveOptimizationProblem = async (
     console.log(`- Days in Office: ${daysInOffice}`);
     console.log(`- Max Depth: ${maxDepth}`);
     console.log(`- Number of Solutions: ${numSolutions}`);
-    console.log(" - API Key: " + process.env.API_KEY?.substring(0, 4) + "****");
+    console.log(" - API Key: " + apiKey?.substring(0, 5) + "****");
     
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const ai = new GoogleGenAI({ apiKey });
 
     const teamDetails = teams.map(t => 
         `- Team: "${t.name}", Size: ${t.size}, Least Favorable Day: ${t.leastFavorableDay || 'None'}`
@@ -90,7 +92,7 @@ ${teamDetails}
 Your task is to assign exactly ${daysInOffice} weekdays (Monday-Friday) to each team, subject to the following rules:
 1. All members of a single team must be in the office on the same days.
 2. The total number of people (sum of team sizes) in the office on any given day cannot exceed the available seats (N).
-3. The primary optimization goal is to MINIMIZE the number of teams assigned to their "Least Favorable Day". A team is penalized if one of its assigned office days is its least favorable day. The total count of such teams is the solution's "score". A lower score is better.
+3. The primary optimization goal is to MINIMIZE the number of people assigned to their "Least Favorable Day". A team is penalized if one of its assigned office days is its least favorable day. The total count of number of people in teams assigned to their least favorable days is the solution's "score". A lower score is better.
 
 Simulate a search for the best solutions using a method analogous to dynamic programming with backtracking. Explore the solution space up to the specified search depth (M) to find the globally optimal solutions.
 
@@ -107,6 +109,10 @@ Provide your answer in the specified JSON format.
                 responseSchema: solutionSchema,
             },
         });
+        
+        if (!response.text) {
+            throw new Error("Empty response from Gemini API");
+        }
         
         const jsonText = response.text.trim();
         const result = JSON.parse(jsonText);

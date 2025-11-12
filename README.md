@@ -1,6 +1,9 @@
 # Seating AI Optimization
 
-## Introduction
+![Version](https://img.shields.io/badge/version-0.0.2-brightgreen.svg)
+
+
+# 1. Introduction
 
 This solves the following organization seating optimization problem using Google Gemini AI:
 
@@ -12,27 +15,139 @@ This solves the following organization seating optimization problem using Google
 
 The solution is then a combination of teams and days that adhere to the above constraints.
 
-## Getting started
+# 2. Getting started
 
-This is implemented as a React application using Node.js.  To get started on a local do the following:
+> [!NOTE]
+> This will need a valid Gemini API way to work so a Google Account is necessary.
+> Google offers free tier API keys that are good enough for casual use although
+> there is risk that the free tier of the model is overloaded from time to time.
+> A paid subscription will get the answer faster and with much less risk of 
+> the server being overloaded.
+> 
 
-`$ npm install`
+## 2.1 Getting a free tier Gemini AI
 
-To then start the local server do:
+The free version is enough for this application aas long as it is acceptable that 
+from time to time you may get a message that the server is overloaded and to try again. 
+There is also a paid tier with much higher limits meaning you get the answer faster 
+and are very unlikely to get a message about server overload.
 
-`$ npm start dev`
+To get a free key:
 
-This will then start a local server on `localhost:3000`
+1. Goto [https://ai.google.dev/gemini-api/docs](https://ai.google.dev/gemini-api/docs) and log-in using your Google Account
+2. Click the button `Get a Gemini API Key` 
 
-## Deploying a production server
+Follow the instruction and you will get a key. Store that in a safe place. You will shortly need it.
 
-`$ npm run build`
-`$ npm run preview`
+We suggest you add the key as a an environmental variable initialized from a shell script
+either `.zshenv` (or `.bashenv`)
 
-This will run a local model. To make a proper deployment copy the content on the `dist` directory
-to a static direcory on your web-server.
+Create a variable by adding the following line
 
-## Implementation
+```zsh
+export GEMINI_API_KEY="your-api-keyt"
+```
+
+## 2.2.Running the program
+
+There are basically two way you can run this program, the hard and the easy way.
+
+* [Harder] If your are a developer or are interesting in looking at the code then clone the repository and setup a build environment
+* [Easy] If you just want to run the program install `podman` and just pull down the ready made image and start it as shown below
+
+## 2.3  THE EASY WAY: Run directly from pre-built container
+
+This assumes familiarity with container technology. We recommend installing `podman`
+Using this method there is no need to clone the repository.
+
+To download the pre-built container using Podman, run the following command:
+
+```bash
+$ podman pull ghcr.io/johan162/office-seating-optimizer:latest
+```
+
+We assume your `GEMINI_API_KEY` is available as an environmental variable then the container is
+run as so:
+
+
+```bash
+podman run -d -p 8080:80 -e VITE_API_KEY=$(GEMINI_API_KEY) --name office-optimizer office-seating-optimizer:latest
+```
+
+This will start the application and serve it at `localhost:8080` ,  open a browser to that URL to start using the program.
+
+
+## 2.4 [THE HARDER WAY] Running from a cloned repo
+
+### 2.4.1 Installing and running from source using Node dev server
+
+Start by cloning the repo and change to the newly created repo
+
+```bash
+$ git clone https://github.com/johan162/office-seating-optimizer.git
+$ cd office-seating-optimizer
+```
+
+Then setup the Node development library dependencies
+
+```bash
+$ npm install
+```
+
+This is implemented as a React application using Node.js.  To get started on a local dev setup 
+you need to setup a environment file with your Gemini API Key
+
+Create a file in the project root `env.local` and place he following variable in it
+
+```bash
+VITE_GEMINI_API_KEY="your-api-key"
+```
+
+replace the placeholder text with your actual GEMINI_API_KEY. 
+
+> [!WARNING] This is not a shell script file so you cannot put a reference to your environment variable in here!
+
+You can now start the local dev server as so:
+
+```bash
+$ npm start dev
+```
+
+This will start a local server and print information on which port and IP-address the server is available
+(usually `localhost:3000`)
+
+Open a Web-broswer at the given address to start using the program.
+
+
+### 2.4.1 Building and running a local container
+
+This is easiest done with the included `Makefile` in two steps
+
+1. Build the container: `make c-build`
+2. Run container `make c-run`
+
+> [!NOTE] This assumed your environmenta variable with the Gemini key is available!
+
+The container is setup to serve the the local site at `localhost:8080`
+
+
+### 2.4.2 Building a production version and running the optimized Web
+
+Therne is a third way built-in to node and that is to run the optimized compiled version
+directly using node. This is similair to starting a dev server but instead uing the
+pre-compiled optimized typescript that is created by the npm build command as such:
+
+```bash
+$ npm run build
+$ npm run preview
+```
+
+This will run a local optimized app. The IP-address and port served will be displayed as info message.
+For a multi-homed server there migh be multiple addresses. Pick any!
+
+
+
+## 3. Implementation
 
 The implementation is a small React based UI wrapper 
 on top of Google Gemini AI call. The program does not by itself implement any optimization algorithm.
@@ -64,5 +179,28 @@ Provide your answer in the specified JSON format.
 ```
 
 
+# Appendix A - CSV Input file format
+
+The purpose of the input CSV file is to list names and team. Each row has a name, followed by a team name. The names and teams are separated by a ','
+
+Exmaple CSV file:
+```CSV
+Person01,Team1
+Person02,Team2
+Person03,Team3
+Person04,Team4
+Person05,Team1
+Person06,Team2
+Person07,Team3
+Person08,Team4
+Person09,Team1
+Person10,Team2
+Person11,Team3
+Person12,Team4
+Person13,Team1
+Person14,Team2
+Person15,Team3
+Person16,Team4
+```
 
 
