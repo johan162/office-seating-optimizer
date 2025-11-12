@@ -12,11 +12,10 @@ set -euo pipefail # Exit on error, undefined variables
 
 declare GITHUB_USER="johan162"
 declare SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-declare PROGRAMNAME="office-seating"
+declare PROGRAMNAME="office-seating-optimizer"
 declare PROGRAMNAME_PRETTY="Office Seating Optimizer"
 declare CONTAINER_REGISTRY="ghcr.io"
-declare CONTAINER_NAME="office-seating-optimizer:v${VERSION}"
-declare CONTAINER_IMAGE="${CONTAINER_REGISTRY}/${GITHUB_USER}/${CONTAINER_NAME}"
+
 
 # =====================================
 # FUNCTIONS AND HELPERS
@@ -187,6 +186,9 @@ fi
 
 validate_version "$VERSION"
 log_info "Creating release for version: $VERSION"
+
+declare CONTAINER_NAME="${PROGRAMNAME}:${VERSION}"
+declare CONTAINER_IMAGE="${CONTAINER_REGISTRY}/${GITHUB_USER}/${CONTAINER_NAME}"
 
 # Check if we're in a git repository
 if ! git rev-parse --git-dir >/dev/null 2>&1; then
