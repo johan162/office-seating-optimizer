@@ -3,7 +3,7 @@
 ![Version](https://img.shields.io/badge/version-0.0.1-brightgreen.svg)
 
 
-## Introduction
+# 1. Introduction
 
 This solves the following organization seating optimization problem using Google Gemini AI:
 
@@ -15,125 +15,139 @@ This solves the following organization seating optimization problem using Google
 
 The solution is then a combination of teams and days that adhere to the above constraints.
 
-## Getting started
+# 2. Getting started
 
 > [!NOTE]
-> This will need a valid Gemini API way to work so you will need a Google Account.
-> Please create a `.env.local` file with one line:
-> `GEMINI_API_KEY=YOUR_API_KEY`
-> Where you replace `YOUR_API_KEY` with your actual API key.
-> Google offers free tier API keys that is ggod enough so it will work in this context.
-> A paid subscription will get the answer faster and with much less risk of the server being
-> overloaded.
+> This will need a valid Gemini API way to work so a Google Account is necessary.
+> Google offers free tier API keys that are good enough for casual use although
+> there is risk that the free tier of the model is overloaded from time to time.
+> A paid subscription will get the answer faster and with much less risk of 
+> the server being overloaded.
+> 
 
-### Getting your own Gemini AI `API_KEY`
+## 2.1 Getting a free tier Gemini AI
 
-To use this program you need your own Gemini AI `API_KEY`. The free version is enough 
-for this application aas long as it is acceptable that from time to time you may get
-a message that the server is overloaded and that you should try again. There is also a
-paid tier with much higher limits meaning you get the answer faster and are very unlikely
-to get a message about server overload.
+The free version is enough for this application aas long as it is acceptable that 
+from time to time you may get a message that the server is overloaded and to try again. 
+There is also a paid tier with much higher limits meaning you get the answer faster 
+and are very unlikely to get a message about server overload.
 
-Do this to get a free key:
+To get a free key:
 
 1. Goto [https://ai.google.dev/gemini-api/docs](https://ai.google.dev/gemini-api/docs) and log-in using your Google Account
 2. Click the button `Get a Gemini API Key` 
 
-Follow the instruction and you will have get a key. Store that in a safe place. You will shortly need it.
+Follow the instruction and you will get a key. Store that in a safe place. You will shortly need it.
 
-There are basically two way you can run this program. If you are a developer you might want to¨
-clone the repo continue from there. If you just want to use it as quickly as possible then getting
-a container image from GitHub Container Registry is the easiest way.
+We suggest you add the key as a an environmental variable initialized from a shell script
+either `.zshenv` (or `.bashenv`)
 
+Create a variable by adding the following line
 
-### From source
-
-YOu first need to install all Node library dependencies
-
-`$ npm install`
-
-
-**Running jte program as a developer server**
-This is implemented as a React application using Node.js.  To get started on a local do the following:
-
-Create a local file that contains your API_KEY called `env.local` in project root
-
-```text
-VITE_GEMINI_API_KEY="YOUR-API-KEY"
+```zsh
+export GEMINI_API_KEY="your-api-keyt"
 ```
 
-replace the placeholder text with your actual API_KEY. 
+## 2.2.Running the program
 
-Now you can start the local dev server as so:
+There are basically two way you can run this program, the hard and the easy way.
 
-`$ npm start dev`
+* [Harder] If your are a developer or are interesting in looking at the code then clone the repository and setup a build environment
+* [Easy] If you just want to run the program install `podman` and just pull down the ready made image and start it as shown below
 
-This will then start a local server and inofmration text on which port the server is available on will be printed
-(usually `localhost:3000`)
+## 2.3  THE EASY WAY: Run directly from pre-built container
 
-**Building and running a local container**
+This assumes familiarity with container technology. We recommend installing `podman`
+Using this method there is no need to clone the repository.
 
-This is easiest done with the included Makefile in two steps
-
-1. Build the container: `make c-build`
-2. Run container `GEMINI_API_KEY="YOUR-API-KEY" make c-run`
-
-YOu can also define an environment variable in for example `.zshenv` 
-
-```
-export GEMINI_API_KEY="YOUR-API-KEY"
-```
-
-Close the terminal and open a new terminal. The run
-
-```
-make c-run
-```
-
-and everyhing will work fine.
-
-
-The container is setup to serve the the local site at `localhost:8080`
-
-**eploying a production server**
-
-Therne is a third way built-in to node and that is to run the optimized compiled version
-directly using node. This is simalr to starting a dev server but instead uing the
-pre-compiled optimized typescript that is created by the npm build command as such:
-
-`$ npm run build`
-`$ npm run preview`
-
-This will run a local optimized app. The port served will be displayed as info message.
-
-### Run directly from pre-built container
-
-(we assume you have docker or Podman installed)
-
-To download the pre-built container from `ghcr.io/johan162/office-seating-optimizer:latest` using Podman, run the following command:
+To download the pre-built container using Podman, run the following command:
 
 ```bash
-podman pull ghcr.io/johan162/office-seating-optimizer:latest
+$ podman pull ghcr.io/johan162/office-seating-optimizer:latest
 ```
 
-Then, to run the container using the included Makefile, set your API key as an environment variable for example in
-`.zshenv` as 
-
-```
-export GEMINI_API_KEY="YOUR-API-KEY"
-```
-
-Then source the `.zshenv` file of just close and open up a new shell. The container can now be run as
+We assume your `GEMINI_API_KEY` is available as an environmental variable then the container is
+run as so:
 
 
 ```bash
 podman run -d -p 8080:80 -e VITE_API_KEY=$(GEMINI_API_KEY) --name office-optimizer office-seating-optimizer:latest
 ```
 
-This will start the application and serve it at `localhost:8080`.
+This will start the application and serve it at `localhost:8080` ,  open a browser to that URL to start using the program.
 
 
-## Implementation
+## 2.4 [THE HARDER WAY] Running from a cloned repo
+
+### 2.4.1 Installing and running from source using Node dev server
+
+Start by cloning the repo and change to the newly created repo
+
+```bash
+$ git clone https://github.com/johan162/office-seating-optimizer.git
+$ cd office-seating-optimizer
+```
+
+Then setup the Node development library dependencies
+
+```bash
+$ npm install
+```
+
+This is implemented as a React application using Node.js.  To get started on a local dev setup 
+you need to setup a environment file with your Gemini API Key
+
+Create a file in the project root `env.local` and place he following variable in it
+
+```bash
+VITE_GEMINI_API_KEY="your-api-key"
+```
+
+replace the placeholder text with your actual GEMINI_API_KEY. 
+
+> [!WARNING] This is not a shell script file so you cannot put a reference to your environment variable in here!
+
+You can now start the local dev server as so:
+
+```bash
+$ npm start dev
+```
+
+This will start a local server and print information on which port and IP-address the server is available
+(usually `localhost:3000`)
+
+Open a Web-broswer at the given address to start using the program.
+
+
+### 2.4.1 Building and running a local container
+
+This is easiest done with the included `Makefile` in two steps
+
+1. Build the container: `make c-build`
+2. Run container `make c-run`
+
+> [!NOTE] This assumed your environmenta variable with the Gemini key is available!
+
+The container is setup to serve the the local site at `localhost:8080`
+
+
+### 2.4.2 Building a production version and running the optimized Web
+
+Therne is a third way built-in to node and that is to run the optimized compiled version
+directly using node. This is similair to starting a dev server but instead uing the
+pre-compiled optimized typescript that is created by the npm build command as such:
+
+```bash
+$ npm run build
+$ npm run preview
+```
+
+This will run a local optimized app. The IP-address and port served will be displayed as info message.
+For a multi-homed server there migh be multiple addresses. Pick any!
+
+
+
+## 3. Implementation
 
 The implementation is a small React based UI wrapper 
 on top of Google Gemini AI call. The program does not by itself implement any optimization algorithm.
@@ -165,5 +179,28 @@ Provide your answer in the specified JSON format.
 ```
 
 
+# Appendix A - CSV Input file format
+
+The purpose of the input CSV file is to list names and team. Each row has a name, followed by a team name. The names and teams are separated by a ','
+
+Exmaple CSV file:
+```CSV
+Person01,Team1
+Person02,Team2
+Person03,Team3
+Person04,Team4
+Person05,Team1
+Person06,Team2
+Person07,Team3
+Person08,Team4
+Person09,Team1
+Person10,Team2
+Person11,Team3
+Person12,Team4
+Person13,Team1
+Person14,Team2
+Person15,Team3
+Person16,Team4
+```
 
 
