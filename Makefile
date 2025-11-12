@@ -23,6 +23,7 @@ CONTAINER_REGISTRY := ghcr.io/$(GITHUB_USER)/$(CONTAINER_NAME)
 
 # File to track last login time to GHCR
 LOGIN_STAMP := .ghcr-login-timestamp
+CONT_BUILD_STAMP := .container-build-timestamp
 
 
 # --------------------------------------
@@ -47,10 +48,20 @@ really-clean: clean c-really-clean
 cnc-build: build
 	podman build --no-cache --build-arg VERSION=$(VERSION) -t office-seating-optimizer:$(VERSION) .
 
-c-build: build
-	podman build --build-arg VERSION=$(VERSION) -t office-seating-optimizer:$(VERSION) .
+c-build: $(CONT_BUILD_STAMP)
 
-c-run:
+$(CONT_BUILD_STAMP): build
+	@echo "Building container image office-seating-optimizer:$(VERSION)..."
+	@if podman build --build-arg VERSION=$(VERSION) -t office-seating-optimizer:$(VERSION) .; then \
+		echo "Container image built successfully."; \
+	else \
+		echo "Container build failed."; \
+		rm -f $(CONT_BUILD_STAMP); \
+		exit 1; \
+	fi
+	@touch $(CONT_BUILD_STAMP)
+
+c-run: $(CONT_BUILD_STAMP)
 	@if [ -z "$(GEMINI_API_KEY)" ]; then \
 		echo "Error: GEMINI_API_KEY environment variable is not set."; \
 		echo "Usage: GEMINI_API_KEY=<your_gemini_api_key> make container-run"; \
@@ -91,9 +102,10 @@ c-really-clean: c-stop c-rm c-rmi c-all-rmi
 
 # Target to push the container image to GitHub Container Registry as both with version tag and 'latest' tag
 # Make the login file only an order dependency to ensure login is done first
-c-push: | $(LOGIN_STAMP)
+c-push: | $(LOGIN_STAMP)  $(CONT_BUILD_STAMP)
 	@if [ "$(VERSION)" = "dev" ]; then \
 		echo "Error: Cannot push image with version 'dev'. Please set VERSION to a proper release version."; \
+		echo "Usage: make c-push VERSION=<release_version>"; \
 		exit 1; \
 	fi
 	@echo "Pushing image $(CONTAINER_NAME):$(VERSION),:latest to GitHub Container Registry..."
