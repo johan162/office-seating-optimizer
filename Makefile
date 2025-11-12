@@ -32,8 +32,9 @@ SCRIPTS_DIR := scripts
 
 # Source files
 SRC_FILES := $(shell find $(SRC_DIR) -name '*.ts' -o -name '*.tsx' -o -name '*.css')
-TEST_FILES := $(shell find $(SRC_DIR) -name '*.test.ts' -o -name '*.test.tsx')
-CONFIG_FILES := package.json tsconfig.json vite.config.ts vitest.config.ts tailwind.config.js postcss.config.js
+CONFIG_FILES := package.json tsconfig.json vite.config.ts nginx.conf index.html entrypoint.sh
+SOURCE_FILES := $(SRC_FILES) $(CONFIG_FILES)
+CONT_CONFIG_FILES := Dockerfile
 
 # Colors for output
 BLUE := \033[0;34m
@@ -63,13 +64,13 @@ help: ## Show this help message
 	@echo "  make ghcr-login                          # Login to GitHub Container Registry via Podman"
 
 
-build: ## Build the production version of project
+build: $(SOURCE_FILES) ## Build the production version of project
 	npm run build
 
-dev: ## Run the development server
+dev: build ## Run the development server
 	npm run dev
 
-preview: ## Preview the production build	
+preview: build ## Preview the production build	
 	npm run preview
 
 clean: c-clean ## Clean build artifacts and timestamps
@@ -79,14 +80,14 @@ really-clean: clean c-really-clean ## Really clean all artifacts, timestamps, an
 	rm -rf node_modules artifacts
 
 
-cnc-build: build ## Build container image without using cache
+cnc-build: build $(CONT_CONFIG_FILES) ## Build container image without using cache
 	podman build --no-cache --build-arg VERSION=$(VERSION) -t office-seating-optimizer:$(VERSION) .
 
 c-build: $(CONT_BUILD_STAMP) ## Build container image
 
-$(CONT_BUILD_STAMP): build
+$(CONT_BUILD_STAMP): $(SOURCE_FILES) $(CONT_CONFIG_FILES)  ## Build container image
 	@echo "Building container image office-seating-optimizer:$(VERSION)..."
-	@if podman build --build-arg VERSION=$(VERSION) -t office-seating-optimizer:$(VERSION) .; then \
+	@if podman build --build-arg VERSION=$(VERSION) -t office-seating-optimizer:$(VERSION) -t office-seating-optimizer:latest .; then \
 		echo "Container image built successfully."; \
 	else \
 		echo "Container build failed."; \
@@ -95,7 +96,7 @@ $(CONT_BUILD_STAMP): build
 	fi
 	@touch $(CONT_BUILD_STAMP)
 
-c-run: $(CONT_BUILD_STAMP) ## Run the containerized application
+c-run: | $(CONT_BUILD_STAMP) ## Run the containerized application
 	@if [ -z "$(GEMINI_API_KEY)" ]; then \
 		echo "Error: GEMINI_API_KEY environment variable is not set."; \
 		echo "Usage: GEMINI_API_KEY=<your_gemini_api_key> make container-run"; \
@@ -106,16 +107,16 @@ c-run: $(CONT_BUILD_STAMP) ## Run the containerized application
 	-@podman rm office-optimizer > /dev/null 2>&1
 	@echo "Starting new container..."
 	@podman run -d -p 8080:80 -e VITE_API_KEY=$(GEMINI_API_KEY) --name office-optimizer office-seating-optimizer:latest
-	@echo "Application is running at http://localhost:8080"
-	@echo "To stop the container, run: podman stop office-optimizer"
-	@echo "To see logs, run: podman logs -f office-optimizer"
+	@echo "$(YELLOW)Application is running at http://localhost:8080$(NC)"
+	@echo "To stop the container, run: $(BLUE) podman stop office-optimizer$(NC)"
+	@echo "To see logs, run: $(BLUE) podman logs -f office-optimizer$(NC)"
 
 c-stop: ## Stop the running container
 	@echo "Stopping container..."
 	-@podman stop office-optimizer > /dev/null 2>&1
 	@echo "Container stopped."
 
-c-rm: ## Remove the container
+c-rm: c-stop ## Remove the container
 	@echo "Removing container..."
 	-@podman rm office-optimizer > /dev/null 2>&1
 	@echo "Container removed."
@@ -131,6 +132,7 @@ c-all-rmi: ## Remove all container images
 	@echo "All images removed."
 
 c-clean: c-stop c-rm c-rmi ## Clean container artifacts
+	rm -f $(CONT_BUILD_STAMP) $(LOGIN_STAMP)
 
 c-really-clean: c-stop c-rm c-all-rmi ## Really clean all container artifacts
 
@@ -173,4 +175,4 @@ $(LOGIN_STAMP):
 	@touch $(LOGIN_STAMP)
 
 
-.PHONY: build dev preview c-build c-run c-stop c-rm c-rmi c-all-rmi c-clean c-really-clean c-push clean really-clean
+.PHONY: build dev preview c-build c-run c-stop c-rm c-rmi c-all-rmi c-clean c-really-clean c-push clean really-clean ghcr-login 
