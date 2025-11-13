@@ -1,7 +1,7 @@
 # Seating AI Optimization
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Version](https://img.shields.io/badge/version-1.0.0-brightgreen.svg)
+![Version](https://img.shields.io/badge/version-1.0.1-brightgreen.svg)
 ![React](https://img.shields.io/badge/react-19.2.3-blue.svg)
 ![Node.js](https://img.shields.io/badge/node-24.10.0-brightgreen.svg)
 
