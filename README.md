@@ -1,6 +1,9 @@
 # Seating AI Optimization
 
-![Version](https://img.shields.io/badge/version-0.0.3-brightgreen.svg)
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Version](https://img.shields.io/badge/version-1.0.0-brightgreen.svg)
+![React](https://img.shields.io/badge/react-19.2.3-blue.svg)
+![Node.js](https://img.shields.io/badge/node-24.10.0-brightgreen.svg)
 
 
 # 1. Introduction
@@ -15,15 +18,24 @@ This solves the following organization seating optimization problem using Google
 
 The solution is then a combination of teams and days that adhere to the above constraints.
 
+
+<img src="docs/screenshots/main-entry.png" width="60%">
+
+*Fig 1: Main landing page* 
+
+&nbsp;
+
+&nbsp;
+
+
 # 2. Getting started
 
-> [!NOTE]
-> This will need a valid Gemini API way to work so a Google Account is necessary.
-> Google offers free tier API keys that are good enough for casual use although
-> there is risk that the free tier of the model is overloaded from time to time.
-> A paid subscription will get the answer faster and with much less risk of 
-> the server being overloaded.
-> 
+***This will need a valid Gemini AI API way to work! A Google Account is therefore necessary.
+Google offers free tier API keys that are good enough for casual use although
+there is risk that the free tier of the model is overloaded from time to time.
+A paid subscription will get the answer faster and with much less risk of 
+the server being overloaded.***
+ 
 
 ## 2.1 Getting a free tier Gemini AI
 

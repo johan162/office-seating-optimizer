@@ -485,7 +485,7 @@ fi
 log_step 9 "Building and deploying container to GitHub Container Registry..."
 
 # Clean all existing images
-make c-all-rmi >>"$RELEASE_LOGFILE" 2>&1
+make c-really-clean >>"$RELEASE_LOGFILE" 2>&1
 
 # Build the container image with the new version tag
 make VERSION="$VERSION" c-build  >>"$RELEASE_LOGFILE" 2>&1

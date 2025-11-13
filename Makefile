@@ -25,34 +25,69 @@ CONTAINER_REGISTRY := ghcr.io/$(GITHUB_USER)/$(CONTAINER_NAME)
 LOGIN_STAMP := .ghcr-login-timestamp
 CONT_BUILD_STAMP := .container-build-timestamp
 
+# Directories
+SRC_DIR := src
+DIST_DIR := dist
+SCRIPTS_DIR := scripts
 
-# --------------------------------------
-# Targets
+# Source files
+SRC_FILES := $(shell find $(SRC_DIR) -name '*.ts' -o -name '*.tsx' -o -name '*.css')
+CONFIG_FILES := package.json tsconfig.json vite.config.ts nginx.conf index.html entrypoint.sh
+SOURCE_FILES := $(SRC_FILES) $(CONFIG_FILES)
+CONT_CONFIG_FILES := Dockerfile
 
-build:
+# Colors for output
+BLUE := \033[0;34m
+GREEN := \033[0;32m
+YELLOW := \033[1;33m
+RED := \033[0;31m
+NC := \033[0m # No Color
+
+
+# =====================================
+# Help Target
+# =====================================
+
+help: ## Show this help message
+	@echo "$(BLUE)Office Seating Optimizer - Makefile targets$(NC)"
+	@echo ""
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(GREEN)%-18s$(NC) %s\n", $$1, $$2}'
+	@echo ""
+	@echo "$(YELLOW)Examples:$(NC)"
+	@echo "  make dev                                 # Run development server"
+	@echo "  make VERSION=0.5.1 c-build               # Build container and tag with version 0.5.1"
+	@echo "  make c-run                               # Run the latest containerized application"
+	@echo "  make c-really-clean                      # Stop and clean all container artifacts"
+	@echo ""
+	@echo "$(YELLOW)The following targets require access token for ghcr.io$(NC)"
+	@echo "  make VERSION=0.5.1 c-push                # Push the container image to GitHub Container Registry"
+	@echo "  make ghcr-login                          # Login to GitHub Container Registry via Podman"
+
+
+build: $(SOURCE_FILES) ## Build the production version of project
 	npm run build
 
-dev:
+dev: build ## Run the development server
 	npm run dev
 
-preview:
+preview: build ## Preview the production build	
 	npm run preview
 
-clean: c-clean
-	rm -rf dist
+clean: c-clean ## Clean build artifacts and timestamps
+	rm -rf dist $(LOGIN_STAMP) $(CONT_BUILD_STAMP)
 
-really-clean: clean c-really-clean
-	rm -rf node_modules
+really-clean: clean c-really-clean ## Really clean all artifacts, timestamps, and node modules
+	rm -rf node_modules artifacts
 
 
-cnc-build: build
+cnc-build: build $(CONT_CONFIG_FILES) ## Build container image without using cache
 	podman build --no-cache --build-arg VERSION=$(VERSION) -t office-seating-optimizer:$(VERSION) .
 
-c-build: $(CONT_BUILD_STAMP)
+c-build: $(CONT_BUILD_STAMP) ## Build container image
 
-$(CONT_BUILD_STAMP): build
+$(CONT_BUILD_STAMP): $(SOURCE_FILES) $(CONT_CONFIG_FILES)  ## Build container image
 	@echo "Building container image office-seating-optimizer:$(VERSION)..."
-	@if podman build --build-arg VERSION=$(VERSION) -t office-seating-optimizer:$(VERSION) .; then \
+	@if podman build --build-arg VERSION=$(VERSION) -t office-seating-optimizer:$(VERSION) -t office-seating-optimizer:latest .; then \
 		echo "Container image built successfully."; \
 	else \
 		echo "Container build failed."; \
@@ -61,7 +96,7 @@ $(CONT_BUILD_STAMP): build
 	fi
 	@touch $(CONT_BUILD_STAMP)
 
-c-run: $(CONT_BUILD_STAMP)
+c-run: | $(CONT_BUILD_STAMP) ## Run the containerized application
 	@if [ -z "$(GEMINI_API_KEY)" ]; then \
 		echo "Error: GEMINI_API_KEY environment variable is not set."; \
 		echo "Usage: GEMINI_API_KEY=<your_gemini_api_key> make container-run"; \
@@ -72,37 +107,38 @@ c-run: $(CONT_BUILD_STAMP)
 	-@podman rm office-optimizer > /dev/null 2>&1
 	@echo "Starting new container..."
 	@podman run -d -p 8080:80 -e VITE_API_KEY=$(GEMINI_API_KEY) --name office-optimizer office-seating-optimizer:latest
-	@echo "Application is running at http://localhost:8080"
-	@echo "To stop the container, run: podman stop office-optimizer"
-	@echo "To see logs, run: podman logs -f office-optimizer"
+	@echo "$(YELLOW)Application is running at http://localhost:8080$(NC)"
+	@echo "To stop the container, run: $(BLUE) podman stop office-optimizer$(NC)"
+	@echo "To see logs, run: $(BLUE) podman logs -f office-optimizer$(NC)"
 
-c-stop:
+c-stop: ## Stop the running container
 	@echo "Stopping container..."
 	-@podman stop office-optimizer > /dev/null 2>&1
 	@echo "Container stopped."
 
-c-rm:
+c-rm: c-stop ## Remove the container
 	@echo "Removing container..."
 	-@podman rm office-optimizer > /dev/null 2>&1
 	@echo "Container removed."
 
-c-rmi:
+c-rmi: ## Remove the container image
 	@echo "Removing image..."
 	-@podman rmi office-seating-optimizer:$(VERSION) > /dev/null 2>&1
 	@echo "Image removed."
 
-c-all-rmi:
+c-all-rmi: ## Remove all container images
 	@echo "Removing all images..."
 	-@podman images -q | xargs podman rmi -f > /dev/null 2>&1
 	@echo "All images removed."
 
-c-clean: c-stop c-rm c-rmi
+c-clean: c-stop c-rm c-rmi ## Clean container artifacts
+	rm -f $(CONT_BUILD_STAMP) $(LOGIN_STAMP)
 
-c-really-clean: c-stop c-rm c-rmi c-all-rmi
+c-really-clean: c-stop c-rm c-all-rmi ## Really clean all container artifacts
 
 # Target to push the container image to GitHub Container Registry as both with version tag and 'latest' tag
 # Make the login file only an order dependency to ensure login is done first
-c-push: | $(LOGIN_STAMP)  $(CONT_BUILD_STAMP)
+c-push: | $(LOGIN_STAMP)  $(CONT_BUILD_STAMP) ## Push container image to GitHub Container Registry
 	@if [ "$(VERSION)" = "dev" ]; then \
 		echo "Error: Cannot push image with version 'dev'. Please set VERSION to a proper release version."; \
 		echo "Usage: make c-push VERSION=<release_version>"; \
@@ -117,7 +153,7 @@ c-push: | $(LOGIN_STAMP)  $(CONT_BUILD_STAMP)
 # Target to login to GitHub Container Registry via Podman
 # Check first that GHCR_TOKEN environment variable is set
 # Use a time-stamp filed to remember if it has been done recently
-ghcr-login: $(LOGIN_STAMP)
+ghcr-login: $(LOGIN_STAMP) ## Login to GitHub Container Registry via Podman
 
 $(LOGIN_STAMP): 
 	@if [ -z "$(GHCR_TOKEN)" ]; then \
@@ -139,4 +175,4 @@ $(LOGIN_STAMP):
 	@touch $(LOGIN_STAMP)
 
 
-.PHONY: build dev preview c-build c-run c-stop c-rm c-rmi c-all-rmi c-clean c-really-clean c-push clean really-clean
+.PHONY: build dev preview c-build c-run c-stop c-rm c-rmi c-all-rmi c-clean c-really-clean c-push clean really-clean ghcr-login 
