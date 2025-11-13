@@ -1,7 +1,7 @@
 # Seating AI Optimization
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Version](https://img.shields.io/badge/version-1.0.1-brightgreen.svg)
+![Version](https://img.shields.io/badge/version-1.0.2-brightgreen.svg)
 ![React](https://img.shields.io/badge/react-19.2.3-blue.svg)
 ![Node.js](https://img.shields.io/badge/node-24.10.0-brightgreen.svg)
 
@@ -19,14 +19,22 @@ This solves the following organization seating optimization problem using Google
 The solution is then a combination of teams and days that adhere to the above constraints.
 
 
-<img src="docs/screenshots/main-entry.png" width="60%">
+<img src="docs/screenshots/main-entry.png" width="80%">
 
 *Fig 1: Main landing page* 
 
 &nbsp;
 
-&nbsp;
+# TL;DR - Using the App 
 
+Two steps are required to run the app, (1) get a Google Gemini API Key, (2) download the app container and run it.
+
+1. Get a Free Google Gemini API Key from [https://ai.google.dev/gemini-api/docs](https://ai.google.dev/gemini-api/docs), and store it in `GEMINI_API_KEY` environment variable
+2. Run: `podman run -d -p 8080:80 -e VITE_API_KEY=$(GEMINI_API_KEY) --name office-optimizer ghcr.io/johan162/office-seating-optimizer:latest` 
+
+The app will be available at `http://localhost:8080` 
+
+If this didn't make sense to you a more detaild step-by-step instruction follows!
 
 # 2. Getting started
 
