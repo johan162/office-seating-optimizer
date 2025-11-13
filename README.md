@@ -1,7 +1,7 @@
 # Seating AI Optimization
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Version](https://img.shields.io/badge/version-1.0.0-brightgreen.svg)
+![Version](https://img.shields.io/badge/version-1.0.1-brightgreen.svg)
 ![React](https://img.shields.io/badge/react-19.2.3-blue.svg)
 ![Node.js](https://img.shields.io/badge/node-24.10.0-brightgreen.svg)
 
@@ -10,7 +10,7 @@
 
 This solves the following organization seating optimization problem using Google Gemini AI:
 
-1. The organization demands attendece in office *D* days during weekdays
+1. The organization demands attendence in office *D* days during weekdays
 2. The organization has *N* seats available (which are in general less than the number of people in the organization)
 3. All staff is part of one team
 4. All members in the same team are in the offce the same days
@@ -37,7 +37,7 @@ A paid subscription will get the answer faster and with much less risk of
 the server being overloaded.***
  
 
-## 2.1 Getting a free tier Gemini AI
+## 2.1 Getting a free tier Gemini AI API Key
 
 The free version is enough for this application aas long as it is acceptable that 
 from time to time you may get a message that the server is overloaded and to try again. 
@@ -57,15 +57,15 @@ either `.zshenv` (or `.bashenv`)
 Create a variable by adding the following line
 
 ```zsh
-export GEMINI_API_KEY="your-api-keyt"
+export GEMINI_API_KEY="your-api-key"
 ```
 
-## 2.2.Running the program
+## 2.2 Running the program
 
-There are basically two way you can run this program, the hard and the easy way.
+There are basically two ways you can run this program, the hard and the easy way.
 
-* [Harder] If your are a developer or are interesting in looking at the code then clone the repository and setup a build environment
-* [Easy] If you just want to run the program install `podman` and just pull down the ready made image and start it as shown below
+* [**Harder**] If your are a developer or are interesting in looking at the code then clone the repository and setup a build environment
+* [**Easy**] If you just want to run the program install `podman` and just pull down the ready made image and start it as shown below
 
 ## 2.3  THE EASY WAY: Run directly from pre-built container
 
@@ -78,7 +78,7 @@ To download the pre-built container using Podman, run the following command:
 $ podman pull ghcr.io/johan162/office-seating-optimizer:latest
 ```
 
-We assume your `GEMINI_API_KEY` is available as an environmental variable then the container is
+We assume your `GEMINI_API_KEY` is available as an environmental variable. The container is then
 run as so:
 
 
@@ -93,7 +93,7 @@ This will start the application and serve it at `localhost:8080` ,  open a brows
 
 ### 2.4.1 Installing and running from source using Node dev server
 
-Start by cloning the repo and change to the newly created repo
+Start by cloning the repo and change to the newly created directory
 
 ```bash
 $ git clone https://github.com/johan162/office-seating-optimizer.git
@@ -128,30 +128,32 @@ $ npm start dev
 This will start a local server and print information on which port and IP-address the server is available
 (usually `localhost:3000`)
 
-Open a Web-broswer at the given address to start using the program.
+Open a Web-browser at the given address to start using the program.
 
 
-### 2.4.1 Building and running a local container
+### 2.4.2 Building and running a local container
 
-This is easiest done with the included `Makefile` in two steps
+> [!NOTE] This assumes your environmenta variable with your Gemini API Key is available!
 
-1. Build the container: `make c-build`
-2. Run container `make c-run`
+This is easiest done with the included `Makefile` in one step:
 
-> [!NOTE] This assumed your environmenta variable with the Gemini key is available!
+```bash
+make c-run
+```
 
 The container is setup to serve the the local site at `localhost:8080`
 
 
-### 2.4.2 Building a production version and running the optimized Web
+### 2.4.3 [Optional] Building a production version and running the optimized version
 
-Therne is a third way built-in to node and that is to run the optimized compiled version
-directly using node. This is similair to starting a dev server but instead uing the
-pre-compiled optimized typescript that is created by the npm build command as such:
+There is a third way built-in to node/reacy and that is to run the optimized compiled version
+directly. This is similair to starting a dev server but instead uing the
+pre-compiled optimized typescript (from the `dist/` folder) that is created by the `npm build` 
+command as such:
 
 ```bash
-$ npm run build
-$ npm run preview
+$ make build
+$ make preview
 ```
 
 This will run a local optimized app. The IP-address and port served will be displayed as info message.

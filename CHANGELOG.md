@@ -1,3 +1,14 @@
+## [1.0.1] - 2025-11-13
+
+Release type: patch
+
+### 📋 Summary 
+- Typos in README
+
+### 🛠 Internal
+- Makefile dependncy cleanup to make it possible to build and run container with `make c-run`
+
+
 ## [1.0.0] - 2025-11-13
 
 Release type: major
