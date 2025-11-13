@@ -134,7 +134,7 @@ c-all-rmi: ## Remove all container images
 c-clean: c-stop c-rm c-rmi ## Clean container artifacts
 	rm -f $(CONT_BUILD_STAMP) $(LOGIN_STAMP)
 
-c-really-clean: c-stop c-rm c-all-rmi ## Really clean all container artifacts
+c-really-clean: c-clean c-all-rmi ## Really clean all container artifacts
 
 # Target to push the container image to GitHub Container Registry as both with version tag and 'latest' tag
 # Make the login file only an order dependency to ensure login is done first
